@@ -1,0 +1,15 @@
+ASM_FILE = "boot.asm"
+
+file "boot" => ASM_FILE do |t|
+	sh("nasm #{ASM_FILE} -o #{t.name}")
+end
+
+task qemu: "boot" do |t|
+	sh("qemu-system-i386 -fda boot")
+end
+
+task :clean do
+	rm_f "boot"
+end
+
+task default: %i(clean qemu)
