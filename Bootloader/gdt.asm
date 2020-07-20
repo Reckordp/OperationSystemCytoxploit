@@ -1,28 +1,81 @@
-gdt_start:
-	dd 0x0
-	dd 0x0
-
-gdt_code:
-	dw 0xffff
-	dw 0x0
-	db 0x0
-	db 10011010b
-	db 11001111b
-	db 0x0
-
-gdt_data:
-	dw 0xffff
-	dw 0x0
-	db 0x0
-	db 10010010b
-	db 11001111b
-	db 0x0
-
-gdt_end:
-
 gdt_descriptor:
-	dw gdt_end - gdt_start
-	dd gdt_start
+	dw 0xFFFF
+	dd LOKASI_GDT
 
-CODE_SEG equ gdt_code - gdt_start
-DATA_SEG equ gdt_data - gdt_start
+atur_gdt:
+	lgdt [gdt_descriptor]
+	mov edi, LOKASI_GDT
+
+	; tabel pertama
+	mov eax, 0x00
+	mov [edi], eax
+	mov [edi+4], eax
+	add edi, 0x08
+
+	; tabel kedua
+	mov eax, 0x0000FFFF
+	mov [edi], eax
+	mov al, 00000000b
+	mov [edi+4], al
+	mov al, 10011010b
+	mov [edi+5], al
+	mov al, 11001111b
+	mov [edi+6], al
+	mov al, 00000000b
+	mov [edi+7], al
+	add edi, 0x08
+
+	; tabel ketiga : Script kernel
+	mov eax, 0x10004FFF
+	mov [edi], eax
+	mov al, 00000000b
+	mov [edi+4], al
+	mov al, 10011010b
+	mov [edi+5], al
+	mov al, 01000000b
+	mov [edi+6], al
+	mov al, 00000000b
+	mov [edi+7], al
+	add edi, 0x08
+
+	; tabel keempat : Stack kernel
+	mov eax, 0x50004FFF
+	mov [edi], eax
+	mov al, 00000000b
+	mov [edi+4], al
+	mov al, 10010010b
+	mov [edi+5], al
+	mov al, 01000000b
+	mov [edi+6], al
+	mov al, 00000000b
+	mov [edi+7], al
+	add edi, 0x08
+
+	; tabel kelima : Data lainnya
+	mov eax, 0xA0004FFF
+	mov [edi], eax
+	mov al, 00000000b
+	mov [edi+4], al
+	mov al, 10010010b
+	mov [edi+5], al
+	mov al, 01000000b
+	mov [edi+6], al
+	mov al, 00000000b
+	mov [edi+7], al
+	add edi, 0x08
+
+	; tabel keenam : VGA Buffer
+	mov eax, 0x0000FFFF
+	mov [edi], eax
+	mov al, 00001010b
+	mov [edi+4], al
+	mov al, 10010010b
+	mov [edi+5], al
+	mov al, 01000001b
+	mov [edi+6], al
+	mov al, 00000000b
+	mov [edi+7], al
+	ret
+
+
+LOKASI_GDT equ 0x0080000

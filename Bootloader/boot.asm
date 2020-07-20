@@ -3,9 +3,9 @@
 mov [BOOT_PANGKAL], dl
 jmp utama
 
-%include "gdt.asm"
-
 [bits 16]
+
+%include "gdt.asm"
 
 muat_disk:
 	mov ah, 0x02 ; BIOS read sector
@@ -26,29 +26,40 @@ muat_kernel:
 
 utama:
 	call muat_kernel
+	call atur_gdt
 	cli
-	lgdt [gdt_descriptor]
+
 	mov eax, cr0
-	or eax, 0x1
+	or eax, 0x01
 	mov cr0, eax
-	jmp CODE_SEG:init_pm
-	hlt
+	jmp PROT_SEG:init_pm
 
 [bits 32]
 init_pm:
-	mov ax, DATA_SEG
-	mov ds, ax
-	mov ss, ax
+	xor eax, eax
+	mov ax, 0x20
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov ebp, 0x90000
+	mov ds, ax
+
+	mov ax, 0x18
+	mov ss, ax
+	mov ebp, 0x4FF0
+	; mov ebp, 0x9000
 	mov esp, ebp
-	jmp POSISI_KERNEL
-	hlt
+
+	mov ax, KERNEL_SEG
+	mov es, ax
+	push ax
+	mov eax, dword [es:0x00]
+	push eax
+	retf
 
 BOOT_PANGKAL db 0
 POSISI_KERNEL equ 0x1000
+PROT_SEG equ 0x0008
+KERNEL_SEG equ 0x0010
 
 times 510 - ($-$$) db 0
-dw 0xaa55
+dw 0xAA55

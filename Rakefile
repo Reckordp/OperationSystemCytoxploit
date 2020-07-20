@@ -14,7 +14,7 @@ file KERNEL do
 end
 
 file "Cytoxploit" => [BOOTLOADER, KERNEL] do 
-	sh("type Bootloader\\boot Kernel\\build\\kernel.bin > Cytoxploit")
+	sh("cat Bootloader/boot Kernel/build/kernel.bin > Cytoxploit")
 end
 
 task :bersih do
@@ -24,5 +24,7 @@ task :bersih do
 end
 
 task default: [:bersih, "Cytoxploit"] do
+	# sh("qemu-system-i386 -vga virtio -full-screen -fda Cytoxploit")
+	# sh("qemu-system-i386 -vga virtio -fda Cytoxploit")
 	sh("qemu-system-i386 -fda Cytoxploit")
 end
