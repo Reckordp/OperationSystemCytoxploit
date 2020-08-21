@@ -28,3 +28,17 @@ task default: [:bersih, "Cytoxploit"] do
 	# sh("qemu-system-i386 -vga virtio -fda Cytoxploit")
 	sh("qemu-system-i386 -fda Cytoxploit")
 end
+
+task :cyto_grub do 
+	Dir.chdir("Kernel")
+	sh("rake build_grub")
+	Dir.chdir("..")
+end
+
+task grub: [:bersih, :cyto_grub] do 
+	sh "cp Kernel/build/kernel.bin Arjun/isodir/boot"
+	sh "mv Arjun/isodir/boot/kernel.bin Arjun/isodir/boot/zup-144"
+	Dir.chdir("Arjun")
+	sh("rake jalan")
+	Dir.chdir("..")
+end
