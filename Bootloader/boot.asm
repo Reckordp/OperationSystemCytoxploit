@@ -1,11 +1,15 @@
 [org 0x7c00]
-
-mov [BOOT_PANGKAL], dl
-jmp utama
-
 [bits 16]
 
-%include "gdt.asm"
+utama:
+	cli
+	call muat_kernel
+	call atur_gdt
+
+	mov eax, cr0
+	or eax, 0x01
+	mov cr0, eax
+	jmp PROT_SEG:init_pm
 
 muat_disk:
 	mov ah, 0x02 ; BIOS read sector
@@ -16,50 +20,34 @@ muat_disk:
 	int 0x13
 	ret
 
-
 muat_kernel:
-	mov bx, POSISI_KERNEL
+	mov ax, POSISI_KERNEL_BELAH_KIRI
+	mov es, ax
+	mov bx, POSISI_KERNEL_BELAH_KANAN
 	mov dh, 15
-	mov dl, [BOOT_PANGKAL]
-	call muat_disk
-	ret
+	jmp muat_disk
 
-utama:
-	call muat_kernel
-	call atur_gdt
-	cli
 
-	mov eax, cr0
-	or eax, 0x01
-	mov cr0, eax
-	jmp PROT_SEG:init_pm
+%include "gdt.asm"
 
 [bits 32]
 init_pm:
 	xor eax, eax
-	mov ax, 0x20
+	mov ax, 0x10
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
 	mov ds, ax
-
-	mov ax, 0x18
 	mov ss, ax
-	mov ebp, 0x4FF0
-	; mov ebp, 0x9000
+	mov ebp, 0x9000
 	mov esp, ebp
+	jmp POSISI_KERNEL
 
-	mov ax, KERNEL_SEG
-	mov es, ax
-	push ax
-	mov eax, dword [es:0x00]
-	push eax
-	retf
-
-BOOT_PANGKAL db 0
-POSISI_KERNEL equ 0x1000
+POSISI_KERNEL_BELAH_KIRI equ 0xffff
+POSISI_KERNEL_BELAH_KANAN equ 0x0100
+POSISI_KERNEL equ 0x0100_0000
 PROT_SEG equ 0x0008
-KERNEL_SEG equ 0x0010
+KERNEL_SEG equ 0x0008
 
 times 510 - ($-$$) db 0
 dw 0xAA55

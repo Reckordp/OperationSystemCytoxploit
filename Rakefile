@@ -26,6 +26,7 @@ end
 task default: [:bersih, "Cytoxploit"] do
 	# sh("qemu-system-i386 -vga virtio -full-screen -fda Cytoxploit")
 	# sh("qemu-system-i386 -vga virtio -fda Cytoxploit")
+	# sh("qemu-system-i386 -monitor stdio -fda Cytoxploit")
 	sh("qemu-system-i386 -fda Cytoxploit")
 end
 
