@@ -18,7 +18,7 @@ file "Cytoxploit" => [BOOTLOADER, KERNEL] do
 end
 
 task :bersih do
-	# rm_f BOOTLOADER
+	rm_f BOOTLOADER
 	rm_f KERNEL
 	rm_f "Cytoxploit"
 end

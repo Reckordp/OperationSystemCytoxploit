@@ -41,10 +41,24 @@ init_pm:
 	mov ss, ax
 	mov ebp, 0x9000
 	mov esp, ebp
+
+
+	lea ecx, [0x0f * 0x80]
+	mov edi, POSISI_KERNEL
+	mov esi, POSISI_KERNEL_BELAH_KIRI
+	shl esi, 0x04
+	add esi, POSISI_KERNEL_BELAH_KANAN
+	.move_kernel:
+	mov eax, [esi]
+	mov [edi], eax
+	add esi, 0x04
+	add edi, 0x04
+	dec ecx
+	jnz .move_kernel
 	jmp POSISI_KERNEL
 
-POSISI_KERNEL_BELAH_KIRI equ 0xffff
-POSISI_KERNEL_BELAH_KANAN equ 0x0100
+POSISI_KERNEL_BELAH_KIRI equ 0x0000
+POSISI_KERNEL_BELAH_KANAN equ 0x9000
 POSISI_KERNEL equ 0x0100_0000
 PROT_SEG equ 0x0008
 KERNEL_SEG equ 0x0008
